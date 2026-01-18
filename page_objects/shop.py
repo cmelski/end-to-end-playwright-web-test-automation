@@ -1,3 +1,4 @@
+from page_objects.cart import CartPage
 from page_objects.product import ProductPage
 
 
@@ -41,3 +42,8 @@ class ShopPage:
         # return the dictionary
 
         return product_dict
+
+    def open_cart(self):
+        self.page.locator('.shopping_cart_link').click()
+        cart_page = CartPage(self.page)
+        return cart_page

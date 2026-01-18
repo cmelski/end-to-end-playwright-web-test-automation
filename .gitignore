@@ -166,3 +166,5 @@ cython_debug/
 allure-report
 report.html
 results.xml
+feature_coverage.json
+feature_coverage.html

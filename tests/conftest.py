@@ -10,6 +10,9 @@ from dotenv import load_dotenv
 
 from playwright.sync_api import sync_playwright, TimeoutError, expect
 
+from tools.feature_coverage import pytest_collection_modifyitems
+
+
 
 # define test run parameters
 # in terminal you can run for e.g. 'pytest test_web_framework_api.py --browser_name firefox'
@@ -72,7 +75,7 @@ def logger_utility():
 
 # fixture to log in to the website behind the scenes in headless mode
 # to produce a session auth state file to be called by page fixture to bypass login screen
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="function")
 def auth_state_file(env, valid_login_credentials):
     path = Path("auth_state_test.json")
 

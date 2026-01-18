@@ -10,7 +10,7 @@ def get_products():
         return products
 
 
-@pytest.mark.smoke
+@pytest.mark.feature("VIEW_PRODUCT")
 @pytest.mark.view_product_info
 def test_view_product_info_page(page_instance, logger_utility, get_products):
 

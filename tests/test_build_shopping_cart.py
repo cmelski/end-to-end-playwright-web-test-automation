@@ -13,10 +13,10 @@ def get_products():
         return products
 
 
+@pytest.mark.feature("BUILD_CART")
 @pytest.mark.build_shopping_cart
 def test_build_shopping_cart(page_instance, logger_utility, get_products):
-
-    shop_page = validate_shop_page(page_instance,logger_utility,get_products)
+    shop_page = validate_shop_page(page_instance, logger_utility, get_products)
 
     # assert that all items from get_products fixture exist in the shop page
     # if a product exists, add it to cart
@@ -39,10 +39,78 @@ def test_build_shopping_cart(page_instance, logger_utility, get_products):
             )
             raise
 
-        logger_utility.info(f'Shopping cart details: {cart}')
+    logger_utility.info(f'Shopping cart details: {cart}')
 
-        # next view the shopping cart and verify number of items and the cart details
+    # open the cart page
 
+    cart_page = shop_page.open_cart()
 
+    # verify number on cart icon matches number of items in the cart and the dictionary
 
+    cart_size = len(cart)
+    logger_utility.info(f' Size of shopping cart: {cart_size}')
+    cart_icon_size = int(cart_page.cart_icon.inner_text())
 
+    try:
+        expect(cart_page.cart_icon).to_have_text(str(cart_size))
+        logger_utility.info(f'Shopping cart size matches shopping cart icon: {cart_size}')
+    except AssertionError:
+        logger_utility.error(f'Shopping cart size: {cart_size} does not match shopping cart icon: {cart_icon_size}')
+        raise
+
+    try:
+        expect(cart_page.cart_items).to_have_count(cart_size)
+        logger_utility.info(f'Shopping cart size matches shopping cart items on the page: {cart_size}')
+    except AssertionError:
+        logger_utility.error(f'Shopping cart size: {cart_size} does not match shopping cart items length on the cart '
+                             f'page: {cart_icon_size}')
+        raise
+
+    # verify continue shopping and checkout buttons exist
+
+    try:
+        expect(cart_page.continue_shopping_button).to_be_visible()
+        logger_utility.info('Continue shopping button is visible')
+    except AssertionError:
+        logger_utility.error('Continue shopping button not visible')
+        raise
+
+    try:
+        expect(cart_page.checkout_button).to_be_visible()
+        logger_utility.info('Checkout button is visible')
+    except AssertionError:
+        logger_utility.error('Checkout button not visible')
+        raise
+
+    # verify each item's details compared to the cart dictionary and also verify visibility of Remove button for each
+    # item
+
+    cart_page_product_dict = dict()
+
+    items = cart_page.cart_items
+    items_count = items.count()
+
+    for i in range(items_count):
+        item = items.nth(i)
+        product_name = item.locator('.inventory_item_name').inner_text().strip()
+        product_description = item.locator('.inventory_item_desc').inner_text().strip()
+        product_price = item.locator('.inventory_item_price').inner_text().strip()
+        cart_page_product_dict[product_name] = {'description': product_description,
+                                                'price': product_price}
+        remove_button = item.locator('button')
+        try:
+            expect(remove_button).to_be_visible()
+            logger_utility.info('Remove button is visible')
+        except AssertionError:
+            logger_utility.error('Remove button is not visible')
+            raise
+
+    logger_utility.info(f'Shopping cart stored in dictionary: {cart}')
+    logger_utility.info(f'Shopping cart displayed on cart page: {cart_page_product_dict}')
+
+    try:
+        assert cart_page_product_dict == cart, 'Shopping cart details do not match'
+        logger_utility.info('Shopping cart details match')
+    except AssertionError:
+        logger_utility.error('Shopping cart details do not match')
+        raise

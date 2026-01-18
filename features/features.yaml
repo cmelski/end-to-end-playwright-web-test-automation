@@ -1,0 +1,14 @@
+# features.yaml
+features:
+  AUTH_LOGIN:
+    description: User can log in
+  INVALID_LOGIN:
+    description: User can't log in with bad credentials
+  VIEW_PRODUCT:
+    description: Product details can be viewed
+  BUILD_CART:
+    description: Add products to cart and verify cart details
+  CART_REMOVE_ITEM:
+    description: Remove product from cart
+  CHECKOUT_COMPLETE:
+    description: Complete checkout
