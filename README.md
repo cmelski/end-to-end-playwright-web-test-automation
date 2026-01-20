@@ -32,22 +32,24 @@ Custom Python tooling for feature coverage & reporting
 
 LLM-assisted spec generation (optional step)
 
-Project Structure (High Level)
+## Project Structure
+
 data/                      # JSON test data
 features/                  # YAML feature definitions
-├── generated/             # AI generated feature specs
-page_objects/              # POM objects here
-reports/                   # feature coverage html reports
-test_run_logs/             # test logs including errors/exceptions
-tests/                     # main test file picked up by pytest and conftest.py setup file
-├── helpers/               # Assertion helpers (Playwright expect lives here) 
-tools/
-├── ai_generate_specs.py   # scripts to pass prompt to LLM to generate feature specs
-├── feature_coverage.py    # script to compile features to be tested from features.yaml
-├── check_feature_coverage.py # compare features defined with test output (tests marked with feature) to find gaps in test coverage
-├── generate_feature_dashboard.py # generated html report to highlight testing gaps
-├── spec_runner.py         # executes steps from feature specs
-├── utils.py               # functions for replacing placeholders in spec files with json data/env variables
+├── generated/             # AI-generated feature specs
+page_objects/              # Page Object Models (locators & actions only)
+reports/                   # Feature coverage HTML reports
+test_run_logs/             # Test logs (errors, exceptions, runtime info)
+tests/                     # pytest entry points and conftest.py
+├── helpers/               # Assertion helpers (Playwright expect lives here)
+tools/                     # Framework utilities and scripts
+├── ai_generate_specs.py   # Generate feature specs via LLM prompts
+├── feature_coverage.py    # Compile executed features from pytest markers
+├── check_feature_coverage.py # Compare defined vs executed features
+├── generate_feature_dashboard.py # Generate HTML feature coverage dashboard
+├── spec_runner.py         # Execute steps defined in YAML feature specs
+└── utils.py               # Shared helpers (env vars, parsing, etc.)
+
             
 Page Object Model (POM) Design
 
