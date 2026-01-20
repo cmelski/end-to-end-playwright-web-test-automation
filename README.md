@@ -32,8 +32,9 @@ Custom Python tooling for feature coverage & reporting
 
 LLM-assisted spec generation (optional step)
 
-## Project Structure
+## 📁 Project Structure (High Level)
 
+```text
 data/                      # JSON test data
 features/                  # YAML feature definitions
 ├── generated/             # AI-generated feature specs
@@ -49,7 +50,7 @@ tools/                     # Framework utilities and scripts
 ├── generate_feature_dashboard.py # Generate HTML feature coverage dashboard
 ├── spec_runner.py         # Execute steps defined in YAML feature specs
 └── utils.py               # Shared helpers (env vars, parsing, etc.)
-
+```
             
 Page Object Model (POM) Design
 
