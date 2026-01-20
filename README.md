@@ -16,7 +16,7 @@ AI used as a generator, not a black box
 
 Scalable for real-world test suites
 
-Technology Stack
+Tech Stack
 
 Python
 
