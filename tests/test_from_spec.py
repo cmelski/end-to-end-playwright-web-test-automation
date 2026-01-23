@@ -111,3 +111,22 @@ def test_remove_product_from_cart(page_instance, get_products):
         elif "assertions" in block:
             for assertion in block["assertions"]:
                 execute_assertion(page_instance, assertion, context)
+
+@pytest.mark.feature("CHECKOUT_COMPLETE")
+def test_complete_checkout(page_instance):
+    with open("features/generated/checkout_complete.yaml") as f:
+        spec = yaml.safe_load(f)
+    spec = substitute_env_vars(spec)
+    spec = replace_placeholders(spec)
+    logger_utility().info(f'YAML checkout_complete feature file loaded: {spec} ')
+
+    context = ScenarioContext()
+
+    # Loop over flow, which may contain steps or assertions
+    for block in spec["flow"]:
+        if "steps" in block:
+            for step in block["steps"]:
+                execute_step(page_instance, step, context)
+        elif "assertions" in block:
+            for assertion in block["assertions"]:
+                execute_assertion(page_instance, assertion, context)

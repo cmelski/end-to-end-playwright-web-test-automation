@@ -2,6 +2,8 @@ from page_objects.cart import CartPage
 from page_objects.shop import ShopPage
 from page_objects.login import LoginPage
 from page_objects.product import ProductPage
+from page_objects.checkout_step1 import CheckoutStep1
+from page_objects.checkout_step2 import CheckoutStep2
 import tests.helpers.test_assertions as test_assertions
 from tests.conftest import logger_utility
 from tools.scenario_context import ScenarioContext
@@ -59,6 +61,31 @@ def execute_step(page, step, context):
         # get a dictionary of the product to view and return it and set it to the scenario context
         context.set(step["parameters"]["save_as"], details)
 
+    elif step["action"] == "capture_cart_details":
+        cart_page = CartPage(page)
+        cart_details = cart_page.get_cart_details()
+        # get a list of dictionaries of the shopping cart items
+        context.set(step["parameters"]["save_as"], cart_details)
+
+    elif action == "click_checkout":
+        cart_page = CartPage(page)
+        cart_page.checkout()
+        logger_utility().info('Checkout Step 1 page loaded')
+
+    elif action == "fill_user_info":
+        checkout_step1_page = CheckoutStep1(page)
+        checkout_step1_page.fill_personal_details()
+
+    elif action == "continue_checkout":
+        checkout_step1_page = CheckoutStep1(page)
+        checkout_step1_page.continue_checkout()
+        logger_utility().info('Checkout Step 2 page loaded')
+
+    elif action == "finish_checkout":
+        checkout_step2_page = CheckoutStep2(page)
+        checkout_step2_page.finish_checkout()
+        logger_utility().info('Finish checkout page loaded')
+
     else:
         raise ValueError(f"Unknown action: {action}")
 
@@ -109,16 +136,48 @@ def execute_assertion(page, assertion, context):
 
         try:
             assert actual == expected, (f'Product details do not between inventory page and product page '
-                                  f'Expected: {expected} / Actual: {actual}')
+                                        f'Expected: {expected} / Actual: {actual}')
             logger_utility().info(f'Product details match between inventory page and product page '
                                   f'Expected: {expected} / Actual: {actual}')
         except AssertionError:
             logger_utility().error(f'Product details do not between inventory page and product page '
+                                   f'Expected: {expected} / Actual: {actual}')
+            raise
+
+
+    elif "checkout_step1_loaded" in assertion:
+        for item in assertion["checkout_step1_loaded"]:
+            test_assertions.execute_checkout_step1_assertions(page, item)
+
+    elif "checkout_step2_loaded" in assertion:
+        for item in assertion["checkout_step2_loaded"]:
+            test_assertions.execute_checkout_step2_assertions(page, item)
+
+    elif "checkout_step2_financials" in assertion:
+        for item in assertion["checkout_step2_financials"]:
+            test_assertions.execute_checkout_step2_assertions(page, item)
+
+    elif "checkout_complete_loaded" in assertion:
+        for item in assertion["checkout_complete_loaded"]:
+            test_assertions.execute_finish_checkout_assertions(page, item)
+
+    elif "cart_details_match" in assertion:
+        checkout_step2_page = CheckoutStep2(page)
+        expected = context.get(
+            assertion["cart_details_match"]["context_key"]
+        )
+
+        actual = checkout_step2_page.get_checkout_items()
+
+        try:
+            assert actual == expected, (f'Shopping cart details do not match between cart page and checkout step 2 page '
+                                        f'Expected: {expected} / Actual: {actual}')
+            logger_utility().info(f'Shopping cart details match between cart page and checkout step 2 page '
                                   f'Expected: {expected} / Actual: {actual}')
+        except AssertionError:
+            logger_utility().error(f'Shopping cart details do not match between cart page and checkout step 2 page '
+                                   f'Expected: {expected} / Actual: {actual}')
             raise
 
     else:
         raise ValueError(f"Unknown assertion type: {assertion}")
-
-
-

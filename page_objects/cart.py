@@ -1,3 +1,4 @@
+
 class CartPage:
 
     def __init__(self, page):
@@ -17,3 +18,27 @@ class CartPage:
             if product_name == product:
                 remove_button = item.locator('button')
                 remove_button.click()
+
+    def get_cart_details(self):
+        cart_details_list = []
+        cart = self.cart_items
+        cart_item_count = cart.count()
+
+        for i in range(cart_item_count):
+            item = cart.nth(i)
+            product_name = item.locator('.inventory_item_name').inner_text().strip()
+            product_description = item.locator('.inventory_item_desc').inner_text().strip()
+            product_price = item.locator('.inventory_item_price').inner_text().strip()
+            product_quantity = item.locator('.cart_quantity').inner_text().strip()
+            cart_details = {"name": product_name,
+                            "price": product_price,
+                            "description": product_description,
+                            "quantity": product_quantity,
+
+                            }
+            cart_details_list.append(cart_details)
+
+        return cart_details_list
+
+    def checkout(self):
+        self.checkout_button.click()

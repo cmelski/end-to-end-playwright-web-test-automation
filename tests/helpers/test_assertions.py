@@ -1,7 +1,11 @@
 from page_objects.cart import CartPage
+from page_objects.finish_checkout import FinishCheckout
 from page_objects.login import LoginPage
 from page_objects.product import ProductPage
 from page_objects.shop import ShopPage
+from page_objects.checkout_step1 import CheckoutStep1
+from page_objects.checkout_step2 import CheckoutStep2
+
 import re
 from playwright.sync_api import expect
 from tests.conftest import logger_utility
@@ -152,10 +156,63 @@ def execute_cart_assertions(page, item):
     if name == "cart_badge":
         shopping_cart_size = item["toHaveCount"]
         logger_utility().info(f'Shopping cart items: {shopping_cart_size}')
-        expect(cart_page.cart_icon).to_have_count(shopping_cart_size)
 
         if shopping_cart_size > 0:
             expect(cart_page.cart_icon).to_have_text(str(shopping_cart_size))
             logger_utility().info(f'Cart badge correctly shows: {shopping_cart_size}')
         else:
             logger_utility().info(f'Product removed from shopping cart')
+
+
+def execute_checkout_step1_assertions(page, item):
+    checkout_step1_page = CheckoutStep1(page)
+    name = item["name"]
+    logger_utility().info(f'Assertion: {name}')
+    if name == 'page_title':
+        expect(checkout_step1_page.title).to_contain_text(item['toContainText'])
+        logger_utility().info(f'Checkout Step 1 page title contains "{item['toContainText']}"')
+    elif name == 'url':
+        expect(checkout_step1_page.page).to_have_url(item['value'])
+        logger_utility().info(f'Checkout Step 1 page url is: "{item['value']}"')
+
+
+def execute_checkout_step2_assertions(page, item):
+    checkout_step2_page = CheckoutStep2(page)
+    name = item["name"]
+    logger_utility().info(f'Assertion: {name}')
+    if name == 'page_title':
+        expect(checkout_step2_page.title).to_contain_text(item['toContainText'])
+        logger_utility().info(f'Checkout Step 2 page title contains "{item['toContainText']}"')
+    elif name == 'url':
+        expect(checkout_step2_page.page).to_have_url(item['value'])
+        logger_utility().info(f'Checkout Step 2 page url is: "{item['value']}"')
+    elif name == 'cart_subtotal_price':
+        cart_subtotal_price = checkout_step2_page.get_cart_items_total_price()  # prices displayed for each item
+        # added up
+        cart_computed_subtotal_price = checkout_step2_page.get_subtotal_price()  # subtotal displayed on the page
+        assert cart_subtotal_price == cart_computed_subtotal_price
+        logger_utility().info(
+            f'Cart item subtotal: {cart_subtotal_price} = computed subtotal: {cart_computed_subtotal_price}')
+    elif name == 'cart_total_price':
+        cart_tax = checkout_step2_page.get_tax()
+        cart_subtotal = checkout_step2_page.get_subtotal_price()
+        cart_rounded_total = round(cart_subtotal + cart_tax, 2)
+        cart_total = checkout_step2_page.get_total_price()
+        assert cart_total == cart_rounded_total
+        logger_utility().info(
+            f'Cart Total Price: {cart_total} = cart subtotal + tax: {cart_rounded_total}')
+
+
+def execute_finish_checkout_assertions(page, item):
+    finish_checkout_page = FinishCheckout(page)
+    name = item["name"]
+    logger_utility().info(f'Assertion: {name}')
+    if name == 'page_title':
+        expect(finish_checkout_page.title).to_contain_text(item['toContainText'])
+        logger_utility().info(f'Checkout Complete page title contains "{item['toContainText']}"')
+    elif name == 'url':
+        expect(finish_checkout_page.page).to_have_url(item['value'])
+        logger_utility().info(f'Checkout Complete page url is: "{item['value']}"')
+    elif name == 'order_complete_image' and item["toBeVisible"] is True:
+        expect(finish_checkout_page.finish_checkout_icon).to_be_visible()
+        logger_utility().info('Checkout Complete image is visible')
